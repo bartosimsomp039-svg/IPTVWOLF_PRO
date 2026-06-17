@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 40" fill="none">
+  <g>
+    <polyline points="4,30 12,10 20,24 28,10 36,30" stroke="#22d3ee" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <text x="44" y="28" font-family="Space Grotesk, sans-serif" font-weight="700" font-size="18" fill="#f8fafc" letter-spacing="1">WOLF</text>
+    <text x="44" y="38" font-family="Space Grotesk, sans-serif" font-weight="500" font-size="8" fill="#22d3ee" letter-spacing="3">N O C</text>
+  </g>
+</svg>

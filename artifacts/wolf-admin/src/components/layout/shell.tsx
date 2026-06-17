@@ -1,14 +1,18 @@
 import { Link, useLocation } from "wouter";
-import { LayoutDashboard, Users, Activity, Settings } from "lucide-react";
+import { LayoutDashboard, Users, Activity, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useClerk, useUser } from "@clerk/react";
 
 const navItems = [
-  { name: "Dashboard", href: "/", icon: LayoutDashboard },
+  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Accounts", href: "/accounts", icon: Users },
 ];
 
 export function Shell({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
+  const { signOut } = useClerk();
+  const { user } = useUser();
+  const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
@@ -21,7 +25,9 @@ export function Shell({ children }: { children: React.ReactNode }) {
         </div>
         <nav className="flex-1 overflow-y-auto p-4 space-y-1">
           {navItems.map((item) => {
-            const isActive = location === item.href || (item.href !== "/" && location.startsWith(item.href));
+            const isActive =
+              location === item.href ||
+              (item.href !== "/dashboard" && location.startsWith(item.href));
             return (
               <Link
                 key={item.href}
@@ -39,16 +45,27 @@ export function Shell({ children }: { children: React.ReactNode }) {
             );
           })}
         </nav>
-        <div className="p-4 border-t border-border">
-          <div className="flex items-center gap-3 px-3 py-2 text-sm text-muted-foreground">
-            <Settings className="w-4 h-4" />
-            v0.1.0-alpha
-          </div>
+        <div className="p-4 border-t border-border space-y-3">
+          {user && (
+            <div className="flex items-center gap-3 px-3 py-1">
+              <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center text-primary text-xs font-bold shrink-0">
+                {user.emailAddresses[0]?.emailAddress?.[0]?.toUpperCase() ?? "U"}
+              </div>
+              <p className="text-xs text-muted-foreground truncate">
+                {user.emailAddresses[0]?.emailAddress}
+              </p>
+            </div>
+          )}
+          <button
+            onClick={() => signOut({ redirectUrl: basePath || "/" })}
+            className="flex items-center gap-3 px-3 py-2 w-full rounded-md text-sm font-medium text-muted-foreground hover:bg-white/5 hover:text-foreground transition-colors"
+          >
+            <LogOut className="w-4 h-4" />
+            Cerrar sesión
+          </button>
         </div>
       </aside>
-      <main className="flex-1 overflow-y-auto">
-        {children}
-      </main>
+      <main className="flex-1 overflow-y-auto">{children}</main>
     </div>
   );
 }
