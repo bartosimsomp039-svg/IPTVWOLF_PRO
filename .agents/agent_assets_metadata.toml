@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "OxrOGkAyon1kQVz1HQ6lt"
+uri = "file://wolf-admin-panel.tar.gz"
+type = "unspecified"
+title = "Wolf Admin Panel — Código fuente"
