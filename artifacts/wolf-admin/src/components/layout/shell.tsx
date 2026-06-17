@@ -1,18 +1,19 @@
 import { Link, useLocation } from "wouter";
-import { LayoutDashboard, Users, Activity, LogOut } from "lucide-react";
+import { LayoutDashboard, Users, Activity, LogOut, UsersRound } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useClerk, useUser } from "@clerk/react";
-
-const navItems = [
-  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { name: "Accounts", href: "/accounts", icon: Users },
-];
+import { useAuth } from "@/contexts/AuthContext";
 
 export function Shell({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
-  const { signOut } = useClerk();
-  const { user } = useUser();
-  const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
+  const { user, logout } = useAuth();
+
+  const navItems = [
+    { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+    { name: "Accounts", href: "/accounts", icon: Users },
+    ...(user?.role === "admin"
+      ? [{ name: "Usuarios", href: "/users", icon: UsersRound }]
+      : []),
+  ];
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
@@ -49,15 +50,16 @@ export function Shell({ children }: { children: React.ReactNode }) {
           {user && (
             <div className="flex items-center gap-3 px-3 py-1">
               <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center text-primary text-xs font-bold shrink-0">
-                {user.emailAddresses[0]?.emailAddress?.[0]?.toUpperCase() ?? "U"}
+                {user.username[0].toUpperCase()}
               </div>
-              <p className="text-xs text-muted-foreground truncate">
-                {user.emailAddresses[0]?.emailAddress}
-              </p>
+              <div className="min-w-0">
+                <p className="text-xs font-medium text-foreground truncate">{user.username}</p>
+                <p className="text-xs text-muted-foreground capitalize">{user.role}</p>
+              </div>
             </div>
           )}
           <button
-            onClick={() => signOut({ redirectUrl: basePath || "/" })}
+            onClick={logout}
             className="flex items-center gap-3 px-3 py-2 w-full rounded-md text-sm font-medium text-muted-foreground hover:bg-white/5 hover:text-foreground transition-colors"
           >
             <LogOut className="w-4 h-4" />

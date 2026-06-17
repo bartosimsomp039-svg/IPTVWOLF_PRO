@@ -1,0 +1,15 @@
+[phases.setup]
+nixPkgs = ["nodejs_22", "pnpm"]
+
+[phases.install]
+cmds = ["pnpm install --frozen-lockfile"]
+
+[phases.build]
+cmds = [
+  "BASE_PATH=/ pnpm --filter @workspace/wolf-admin run build",
+  "pnpm --filter @workspace/api-server run build",
+  "cp -r artifacts/wolf-admin/dist/public artifacts/api-server/dist/public"
+]
+
+[start]
+cmd = "PORT=${PORT:-3000} node --enable-source-maps ./artifacts/api-server/dist/index.mjs"
