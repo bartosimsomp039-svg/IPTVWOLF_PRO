@@ -3,20 +3,26 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Wolf IPTV Admin API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: accounts
+    description: IPTV account management
+  - name: cache
+    description: Per-account cache management
+  - name: stats
+    description: Dashboard statistics
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,13 +30,262 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /stats:
+    get:
+      operationId: getStats
+      tags: [stats]
+      summary: Dashboard summary stats
+      responses:
+        "200":
+          description: Stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Stats"
+
+  /accounts:
+    get:
+      operationId: listAccounts
+      tags: [accounts]
+      summary: List all IPTV accounts
+      responses:
+        "200":
+          description: List of accounts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Account"
+    post:
+      operationId: createAccount
+      tags: [accounts]
+      summary: Add a new IPTV account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AccountInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Account"
+
+  /accounts/{id}:
+    get:
+      operationId: getAccount
+      tags: [accounts]
+      summary: Get a single account
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Account
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Account"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateAccount
+      tags: [accounts]
+      summary: Update an account
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AccountUpdate"
+      responses:
+        "200":
+          description: Updated account
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Account"
+        "404":
+          description: Not found
+    delete:
+      operationId: deleteAccount
+      tags: [accounts]
+      summary: Delete an account
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+
+  /accounts/{id}/cache:
+    get:
+      operationId: getAccountCache
+      tags: [cache]
+      summary: Get cache status for an account
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Cache status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CacheStatus"
+        "404":
+          description: Not found
+    delete:
+      operationId: clearAccountCache
+      tags: [cache]
+      summary: Clear cache for an account (force refresh)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Cache cleared
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CacheStatus"
+        "404":
+          description: Not found
+
 components:
   schemas:
     HealthStatus:
       type: object
+      required: [status]
       properties:
         status:
           type: string
-      required:
-        - status
 
+    Stats:
+      type: object
+      required: [totalAccounts, activeAccounts, xtreamCount, m3uCount, cacheActiveCount, cacheExpiredCount]
+      properties:
+        totalAccounts:
+          type: integer
+        activeAccounts:
+          type: integer
+        xtreamCount:
+          type: integer
+        m3uCount:
+          type: integer
+        cacheActiveCount:
+          type: integer
+        cacheExpiredCount:
+          type: integer
+
+    Account:
+      type: object
+      required: [id, type, name, createdAt]
+      properties:
+        id:
+          type: integer
+        type:
+          type: string
+          enum: [xtream, m3u]
+        name:
+          type: string
+        host:
+          type: ["string", "null"]
+        user:
+          type: ["string", "null"]
+        pass:
+          type: ["string", "null"]
+        url:
+          type: ["string", "null"]
+        avatar:
+          type: ["string", "null"]
+        active:
+          type: boolean
+        cacheUpdatedAt:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    AccountInput:
+      type: object
+      required: [type, name]
+      properties:
+        type:
+          type: string
+          enum: [xtream, m3u]
+        name:
+          type: string
+        host:
+          type: string
+        user:
+          type: string
+        pass:
+          type: string
+        url:
+          type: string
+        avatar:
+          type: string
+        active:
+          type: boolean
+
+    AccountUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        host:
+          type: string
+        user:
+          type: string
+        pass:
+          type: string
+        url:
+          type: string
+        avatar:
+          type: string
+        active:
+          type: boolean
+
+    CacheStatus:
+      type: object
+      required: [accountId, hasLive, hasMovies, hasSeries, lastUpdated, isExpired]
+      properties:
+        accountId:
+          type: integer
+        hasLive:
+          type: boolean
+        hasMovies:
+          type: boolean
+        hasSeries:
+          type: boolean
+        lastUpdated:
+          type: ["string", "null"]
+        isExpired:
+          type: boolean
+        hoursRemaining:
+          type: ["integer", "null"]
