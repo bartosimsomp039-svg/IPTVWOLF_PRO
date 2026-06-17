@@ -6,3 +6,9 @@ id = "OxrOGkAyon1kQVz1HQ6lt"
 uri = "file://wolf-admin-panel.tar.gz"
 type = "unspecified"
 title = "Wolf Admin Panel — Código fuente"
+
+[[outputs]]
+id = "IQ43lkm5TMyCnKtcq1Awc"
+uri = "file://wolf-admin-panel.zip"
+type = "unspecified"
+title = "wolf-admin-panel.zip"
