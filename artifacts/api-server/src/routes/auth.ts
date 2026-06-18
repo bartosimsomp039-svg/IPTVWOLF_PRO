@@ -48,9 +48,10 @@ router.post("/auth/login", async (req, res) => {
       user: { id: user.id, username: user.username, role: user.role },
     });
   } catch (err) {
-    req.log.error({ err }, "Login error");
-    res.status(500).json({ error: "Error interno" });
-  }
+  console.error("LOGIN ERROR COMPLETO:", err);
+  req.log.error({ err }, "Login error");
+  res.status(500).json({ error: "Error interno" });
+}
 });
 
 router.get("/auth/me", async (req, res) => {
