@@ -14,13 +14,17 @@ export async function seedAdminUser() {
     if (existing) return;
 
     const passwordHash = await bcrypt.hash("admin", 10);
+
     await db.insert(usersTable).values({
       username: "admin",
       passwordHash,
       role: "admin",
     });
+
     logger.info("Admin user created (username: admin, password: admin)");
+
   } catch (err) {
+    console.error("SEED ERROR COMPLETO:", err);
     logger.error({ err }, "Failed to seed admin user");
   }
 }
